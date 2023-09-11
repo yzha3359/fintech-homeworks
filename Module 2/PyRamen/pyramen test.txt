@@ -1,0 +1,63 @@
+import csv
+
+# Initialize an empty list to hold menu_data
+menu_data = []
+
+# Read in menu_data.csv and append rows to the menu_data list
+with open("menu_data.csv", newline="") as csvfile:
+    csvreader = csv.reader(csvfile)
+    header = next(csvreader)  # Skip the header row
+    for row in csvreader:
+        menu_data.append(row)
+
+# Initialize an empty list to hold sales_data
+sales_data = []
+
+# Read in sales_data.csv and append rows to the sales_data list
+with open("sales_data.csv", newline="") as csvfile:
+    csvreader = csv.reader(csvfile)
+    header = next(csvreader)  # Skip the header row
+    for row in csvreader:
+        sales_data.append(row)
+# Initialize an empty report dictionary
+report = {}
+
+# Loop through sales data
+for row in sales_data:
+    quantity = int(row[3])
+    sales_item = row[4]
+
+    # Check if sales_item is already in the report, if not, initialize it
+    if sales_item not in report:
+        report[sales_item] = {
+            "01-count": 0,
+            "02-revenue": 0,
+            "03-cogs": 0,
+            "04-profit": 0,
+        }
+
+    # Loop through menu data to find matching menu items
+    for menu_row in menu_data:
+        item = menu_row[0]
+        price = float(menu_row[3])
+        cost = float(menu_row[4])
+
+        # If sales_item matches an item in the menu, update the report
+        if sales_item == item:
+            profit = price - cost
+            report[sales_item]["01-count"] += quantity
+            report[sales_item]["02-revenue"] += price * quantity
+            report[sales_item]["03-cogs"] += cost * quantity
+            report[sales_item]["04-profit"] += profit * quantity
+            break  # Exit the menu loop once a match is found
+
+        else:
+            print(f"{sales_item} does not equal {item}! NO MATCH!")
+
+# Display the report dictionary
+report
+
+# Write out the contents of the report dictionary to a text file
+with open("report.txt", "w") as reportfile:
+    for item, metrics in report.items():
+        reportfile.write(f"{item} {metrics}\n")
